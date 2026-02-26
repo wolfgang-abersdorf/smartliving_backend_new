@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int          @id @default(autoincrement())
+  email        String       @unique
+  passwordHash String       @map("password_hash")
+  name         String
+  phoneNumber  String?      @map("phone_number")
+  company      String?
+  position     String?
+  clientMode   Boolean?     @default(false) @map("client_mode")
+  profilePhoto String?      @map("profile_photo")
+  role         String?      @default("agent")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  buildings    Building[]
+  collections  Collection[]
+
+  @@map("users")
+}
+
+model Building {
+  id               Int      @id @default(autoincrement())
+  title            String
+  slug             String   @unique
+  address          String?
+  area             String?
+  description      String?
+  developer        String?
+  commission       String?
+  telegram         String?
+  whatsapp         String?
+  
+  hasView          Boolean? @default(false) @map("has_view")
+  hasPool          Boolean? @default(false) @map("has_pool")
+  hasCarAccess     Boolean? @default(false) @map("has_car_access")
+  hasParking       Boolean? @default(false) @map("has_parking")
+  
+  mainImageUrl     String?  @map("main_image_url")
+  mainImageThumb   String?  @map("main_image_thumb")
+  mainImageCard    String?  @map("main_image_card")
+  pdfUrl           String?  @map("pdf_url")
+  
+  lat              Float?
+  lng              Float?
+  
+  buildingClass    String?  @map("building_class")
+  buildingMaterial String?  @map("building_material")
+  roadType         String?  @map("road_type")
+  territory        String?
+  
+  advantages       String[]
+  contacts         Json?    @default("[]")
+  albums           Json?    @default("[]")
+  documents        Json?    @default("[]")
+  mapData          String?  @map("map_data")
+  
+  authorId         Int?     @map("author_id")
+  author           User?    @relation(fields: [authorId], references: [id])
+  
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  blocks              Block[]
+  collectionBuildings CollectionBuilding[]
+
+  @@index([area])
+  @@index([authorId])
+  @@index([slug])
+  @@map("buildings")
+}
+
+model Block {
+  id                Int      @id @default(autoincrement())
+  blockUid          String   @unique @map("block_uid")
+  buildingId        Int      @map("building_id")
+  building          Building @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  title             String?
+  category          String
+  completionYear    Int?     @map("completion_year")
+  completionQuarter String?  @map("completion_quarter")
+  constructionStage String?  @map("construction_stage")
+  typeOfOwnership   String?  @map("type_of_ownership")
+  leaseholdYears    String?  @map("leasehold_years")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  units             Unit[]
+
+  @@index([buildingId])
+  @@index([category])
+  @@index([typeOfOwnership])
+  @@index([constructionStage])
+  @@map("blocks")
+}
+
+model Unit {
+  id              Int      @id @default(autoincrement())
+  blockId         Int      @map("block_id")
+  block           Block    @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  numberTitle     String?  @map("number_title")
+  areaM2          Decimal? @map("area_m2")
+  price           Decimal?
+  currency        String?  @default("USD")
+  status          String?  @default("Sale")
+  rooms           Int?
+  floor           Int?
+  floorsTotal     Int?     @map("floors_total")
+  landArea        Decimal? @map("land_area")
+  apartmentTypes  String[] @map("apartment_types")
+  views           String[]
+  propertyType    String?  @map("property_type")
+  photos          String[]
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([blockId])
+  @@index([status])
+  @@index([price])
+  @@index([areaM2])
+  @@index([rooms])
+  @@map("units")
+}
+
+model Collection {
+  id         Int        @id @default(autoincrement())
+  title      String
+  objects    String?
+  authorId   Int        @map("author_id")
+  author     User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  collectionBuildings CollectionBuilding[]
+
+  @@index([authorId])
+  @@map("collections")
+}
+
+model CollectionBuilding {
+  collectionId Int        @map("collection_id")
+  buildingId   Int        @map("building_id")
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  building     Building   @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, buildingId])
+  @@index([buildingId])
+  @@map("collection_buildings")
+}

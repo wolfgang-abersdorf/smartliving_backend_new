@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: smartliving
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql://${PG_USER}:${PG_PASSWORD}@postgres:5432/smartliving
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 4000
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
