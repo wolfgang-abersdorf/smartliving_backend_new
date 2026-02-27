@@ -29,6 +29,7 @@ export default async function (fastify: FastifyInstance) {
                     has_pool: { type: 'boolean' },
                     has_view: { type: 'boolean' },
                     sort: { type: 'string', default: 'newest' },
+                    search: { type: 'string' },
                 },
             },
         },
@@ -44,6 +45,14 @@ export default async function (fastify: FastifyInstance) {
         const where: any = {};
         const blockWhere: any = {};
         const unitWhere: any = { status: { not: 'Sold' } };
+
+        if (query.search) {
+            where.OR = [
+                { title: { contains: query.search, mode: 'insensitive' } },
+                { description: { contains: query.search, mode: 'insensitive' } },
+                { address: { contains: query.search, mode: 'insensitive' } }
+            ];
+        }
 
         if (query.area?.length) where.area = { in: query.area };
         if (query.has_pool) where.hasPool = true;
