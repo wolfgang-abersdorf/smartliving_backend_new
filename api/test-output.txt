@@ -1,0 +1,230 @@
+Post: { ID: 575, post_title: 'Hidden City Villas' }
+Meta: [
+  { meta_key: 'construction_stage', meta_value: 'Under development' },
+  {
+    meta_key: 'address',
+    meta_value: 'Jl. Made Lebah, MAS, Kecamatan Ubud, Kabupaten Gianyar, Bali 80571'
+  },
+  { meta_key: 'having_a_view', meta_value: '1' },
+  { meta_key: 'availability_of_a_swimming_pool', meta_value: '1' },
+  { meta_key: 'car_access', meta_value: '1' },
+  { meta_key: 'private_parking', meta_value: '1' },
+  { meta_key: 'main_image', meta_value: '7459' },
+  {
+    meta_key: 'characteristics_class_of_building',
+    meta_value: 'Luxury'
+  },
+  {
+    meta_key: 'characteristics_building_material',
+    meta_value: 'Monolith frame'
+  },
+  {
+    meta_key: 'characteristics_the_road_to_the_house',
+    meta_value: 'Asphalt'
+  },
+  { meta_key: 'characteristics_territory', meta_value: 'Private' },
+  { meta_key: 'characteristics', meta_value: '' },
+  {
+    meta_key: 'advantages',
+    meta_value: 'a:12:{i:0;s:9:"Concierge";i:1;s:10:"Playground";i:2;s:16:"Landscape design";i:3;s:15:"Outdoor workout";i:4;s:3:"SPA";i:5;s:7:"Fitness";i:6;s:4:"Pool";i:7;s:9:"Rest zone";i:8;s:5:"Sauna";i:9;s:10:"Restaurant";i:10;s:8:"Security";i:11;s:4:"CCTV";}'
+  },
+  { meta_key: 'developer', meta_value: 'PT HIDDEN UBUD' },
+  { meta_key: 'commission', meta_value: '5%' },
+  { meta_key: 'contacts_0_email', meta_value: 'info@hiddenubud.com' },
+  { meta_key: 'contacts_0_name', meta_value: '' },
+  { meta_key: 'contacts_0_phone', meta_value: '+62 082 145 900 400' },
+  { meta_key: 'contacts_0_position', meta_value: 'Sales Department' },
+  { meta_key: 'contacts', meta_value: '1' },
+  { meta_key: 'docs', meta_value: '' },
+  { meta_key: 'description', meta_value: '' },
+  {
+    meta_key: 'map',
+    meta_value: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3945.743590474321!2d115.26292667507164!3d-8.524256491518315!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd23d8e7d45805f%3A0x77084f9ca1d25ba4!2sHidden%20City%20Ubud!5e0!3m2!1sid!2sid!4v1726291589294!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>'
+  },
+  {
+    meta_key: 'albums_album_0_album_title',
+    meta_value: 'Infrastructure '
+  },
+  {
+    meta_key: 'albums_album_0_images',
+    meta_value: 'a:5:{i:0;s:4:"7370";i:1;s:4:"7371";i:2;s:4:"7372";i:3;s:4:"7373";i:4;s:4:"7374";}'
+  },
+  {
+    meta_key: 'albums_album_1_album_title',
+    meta_value: 'Villa Mira Exterior '
+  },
+  {
+    meta_key: 'albums_album_1_images',
+    meta_value: 'a:7:{i:0;s:4:"7391";i:1;s:4:"7390";i:2;s:4:"7386";i:3;s:4:"7387";i:4;s:4:"7388";i:5;s:4:"7389";i:6;s:4:"7385";}'
+  },
+  { meta_key: 'albums_album', meta_value: '5' },
+  { meta_key: 'albums', meta_value: '' },
+  { meta_key: 'block_0_category', meta_value: 'Villas' },
+  { meta_key: 'block_0_area', meta_value: 'Ubud' },
+  { meta_key: 'block_0_title', meta_value: '' },
+  { meta_key: 'block_0_units_unit_0_numbertitle', meta_value: 'Lot 1' },
+  { meta_key: 'block_0_units_unit_0_area_m2', meta_value: '316' },
+  { meta_key: 'block_0_units_unit_0_price', meta_value: '819000' },
+  { meta_key: 'block_0_units_unit_0_currency', meta_value: 'USD' },
+  {
+    meta_key: 'block_0_units_unit_0_type_of_ownership',
+    meta_value: 'Lease hold'
+  },
+  {
+    meta_key: 'block_0_units_unit_0_total_years_of_leasehold',
+    meta_value: '30'
+  },
+  {
+    meta_key: 'block_0_units_unit_0_having_a_view',
+    meta_value: 'a:1:{i:0;s:17:"to the rice field";}'
+  },
+  {
+    meta_key: 'block_0_units_unit_0_construction_stage',
+    meta_value: 'Partially completed'
+  },
+  {
+    meta_key: 'block_0_units_unit_0_completion_year',
+    meta_value: '2024'
+  },
+  {
+    meta_key: 'block_0_units_unit_0_completion_quarter',
+    meta_value: 'III'
+  },
+  { meta_key: 'block_0_units_unit_0_status', meta_value: 'Sold' },
+  { meta_key: 'block_0_units_unit_0_number_of_rooms', meta_value: '4' },
+  {
+    meta_key: 'block_0_units_unit_0_amount_of_floors',
+    meta_value: '2'
+  },
+  { meta_key: 'block_0_units_unit_0_land_area', meta_value: '351.95' },
+  { meta_key: 'block_0_units_unit_0_photo', meta_value: '' },
+  {
+    meta_key: 'block_0_units_unit_1_numbertitle',
+    meta_value: '12 Mira '
+  },
+  { meta_key: 'block_0_units_unit_1_area_m2', meta_value: '273' },
+  { meta_key: 'block_0_units_unit_1_price', meta_value: '620000' },
+  { meta_key: 'block_0_units_unit_1_currency', meta_value: 'USD' },
+  {
+    meta_key: 'block_0_units_unit_1_type_of_ownership',
+    meta_value: 'Lease hold'
+  },
+  {
+    meta_key: 'block_0_units_unit_1_total_years_of_leasehold',
+    meta_value: '30'
+  },
+  {
+    meta_key: 'block_0_units_unit_1_having_a_view',
+    meta_value: 'a:1:{i:0;s:17:"to the rice field";}'
+  },
+  {
+    meta_key: 'block_0_units_unit_1_construction_stage',
+    meta_value: 'Partially completed'
+  },
+  {
+    meta_key: 'block_0_units_unit_1_completion_year',
+    meta_value: '2024'
+  },
+  {
+    meta_key: 'block_0_units_unit_1_completion_quarter',
+    meta_value: 'III'
+  },
+  { meta_key: 'block_0_units_unit_1_status', meta_value: 'Sale' },
+  { meta_key: 'block_0_units_unit_1_number_of_rooms', meta_value: '2' },
+  {
+    meta_key: 'block_0_units_unit_1_amount_of_floors',
+    meta_value: '2'
+  },
+  { meta_key: 'block_0_units_unit_1_land_area', meta_value: '331' },
+  { meta_key: 'block_0_units_unit_1_photo', meta_value: '' },
+  {
+    meta_key: 'block_0_units_unit_2_numbertitle',
+    meta_value: 'Lot 5 Losta'
+  },
+  { meta_key: 'block_0_units_unit_2_area_m2', meta_value: '323' },
+  { meta_key: 'block_0_units_unit_2_price', meta_value: '780000' },
+  { meta_key: 'block_0_units_unit_2_currency', meta_value: 'USD' },
+  {
+    meta_key: 'block_0_units_unit_2_type_of_ownership',
+    meta_value: 'Lease hold'
+  },
+  {
+    meta_key: 'block_0_units_unit_2_total_years_of_leasehold',
+    meta_value: '30'
+  },
+  {
+    meta_key: 'block_0_units_unit_2_having_a_view',
+    meta_value: 'a:1:{i:0;s:17:"to the rice field";}'
+  },
+  {
+    meta_key: 'block_0_units_unit_2_construction_stage',
+    meta_value: 'Partially completed'
+  },
+  {
+    meta_key: 'block_0_units_unit_2_completion_year',
+    meta_value: '2024'
+  },
+  {
+    meta_key: 'block_0_units_unit_2_completion_quarter',
+    meta_value: 'III'
+  },
+  { meta_key: 'block_0_units_unit_2_status', meta_value: 'Sale' },
+  { meta_key: 'block_0_units_unit_2_number_of_rooms', meta_value: '4' },
+  {
+    meta_key: 'block_0_units_unit_2_amount_of_floors',
+    meta_value: '2'
+  },
+  { meta_key: 'block_0_units_unit_2_land_area', meta_value: '294' },
+  { meta_key: 'block_0_units_unit_2_photo', meta_value: '' },
+  { meta_key: 'block_0_units_unit', meta_value: '7' },
+  { meta_key: 'block_0_units', meta_value: '' },
+  { meta_key: 'block', meta_value: '1' },
+  { meta_key: 'block_0_units_unit_3_numbertitle', meta_value: 'Lot 6' },
+  { meta_key: 'block_0_units_unit_3_area_m2', meta_value: '370' },
+  { meta_key: 'block_0_units_unit_3_price', meta_value: '795000' },
+  { meta_key: 'block_0_units_unit_3_currency', meta_value: 'USD' },
+  {
+    meta_key: 'block_0_units_unit_3_type_of_ownership',
+    meta_value: 'Lease hold'
+  },
+  {
+    meta_key: 'block_0_units_unit_3_total_years_of_leasehold',
+    meta_value: '30'
+  },
+  {
+    meta_key: 'block_0_units_unit_3_having_a_view',
+    meta_value: 'a:1:{i:0;s:17:"to the rice field";}'
+  },
+  {
+    meta_key: 'block_0_units_unit_3_construction_stage',
+    meta_value: 'Partially completed'
+  },
+  {
+    meta_key: 'block_0_units_unit_3_completion_year',
+    meta_value: '2024'
+  },
+  {
+    meta_key: 'block_0_units_unit_3_completion_quarter',
+    meta_value: 'III'
+  },
+  { meta_key: 'block_0_units_unit_3_status', meta_value: 'Sale' },
+  { meta_key: 'block_0_units_unit_3_number_of_rooms', meta_value: '4' },
+  {
+    meta_key: 'block_0_units_unit_3_amount_of_floors',
+    meta_value: '2'
+  },
+  { meta_key: 'block_0_units_unit_3_land_area', meta_value: '314.06' },
+  { meta_key: 'block_0_units_unit_3_photo', meta_value: '' },
+  {
+    meta_key: 'block_0_units_unit_4_numbertitle',
+    meta_value: 'Lot 7 Mira'
+  },
+  { meta_key: 'block_0_units_unit_4_area_m2', meta_value: '273' },
+  { meta_key: 'block_0_units_unit_4_price', meta_value: '650000' },
+  { meta_key: 'block_0_units_unit_4_currency', meta_value: 'USD' },
+  {
+    meta_key: 'block_0_units_unit_4_type_of_ownership',
+    meta_value: 'Lease hold'
+  },
+  ... 70 more items
+]
