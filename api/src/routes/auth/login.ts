@@ -29,8 +29,23 @@ export default async function (fastify: FastifyInstance) {
             return reply.code(401).send({ error: 'Invalid credentials' });
         }
 
-        // Checking if the hash matches. If it's a temp password directly stored as plain text during migration, allow it.
-        const isMatch = await bcrypt.compare(password, user.passwordHash).catch(() => false);
+        // Checking if the hash matches using bcrypt first
+        let isMatch = await bcrypt.compare(password, user.passwordHash).catch(() => false);
+
+        // If bcrypt fails and it looks like a WP hash, try wordpress-hash-node
+        if (!isMatch && user.passwordHash.startsWith('$P$')) {
+            const wpHash = require('wordpress-hash-node');
+            isMatch = wpHash.CheckPassword(password, user.passwordHash);
+
+            // Re-hash with bcrypt for future logins if it matched
+            if (isMatch) {
+                const newHash = await bcrypt.hash(password, 10);
+                await fastify.prisma.user.update({
+                    where: { id: user.id },
+                    data: { passwordHash: newHash }
+                });
+            }
+        }
 
         if (!isMatch && user.passwordHash !== password) {
             return reply.code(401).send({ error: 'Invalid credentials' });
