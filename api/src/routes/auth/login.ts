@@ -20,6 +20,7 @@ export default async function (fastify: FastifyInstance) {
             where: {
                 OR: [
                     { email: username },
+                    { username: username },
                     { name: username }
                 ]
             }
@@ -29,8 +30,14 @@ export default async function (fastify: FastifyInstance) {
             return reply.code(401).send({ error: 'Invalid credentials' });
         }
 
+        // If it's a newer WordPress bcrypt hash, it starts with $wp$
+        let hashToCompare = user.passwordHash;
+        if (hashToCompare.startsWith('$wp$')) {
+            hashToCompare = hashToCompare.replace(/^\$wp\$/, '$');
+        }
+
         // Checking if the hash matches using bcrypt first
-        let isMatch = await bcrypt.compare(password, user.passwordHash).catch(() => false);
+        let isMatch = await bcrypt.compare(password, hashToCompare).catch(() => false);
 
         // If bcrypt fails and it looks like a WP hash, try wordpress-hash-node
         if (!isMatch && user.passwordHash.startsWith('$P$')) {

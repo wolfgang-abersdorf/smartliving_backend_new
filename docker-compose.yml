@@ -36,9 +36,6 @@ services:
       - postgres
       - redis
     restart: unless-stopped
-    volumes:
-      - ./api:/app
-      - /app/node_modules
     networks:
       - sl_network
 
