@@ -10,6 +10,8 @@ services:
     ports:
       - "${PG_PORT}:5432"
     restart: unless-stopped
+    networks:
+      - sl_network
 
   redis:
     image: redis:7-alpine
@@ -18,6 +20,8 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - sl_network
 
   api:
     build: ./api
@@ -35,7 +39,14 @@ services:
     volumes:
       - ./api:/app
       - /app/node_modules
+    networks:
+      - sl_network
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  sl_network:
+    name: sl_shared_network
+    driver: bridge

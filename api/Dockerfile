@@ -1,4 +1,8 @@
 FROM node:18-alpine
+
+# Install openssl to make Prisma work on Alpine 18+
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 COPY package*.json ./

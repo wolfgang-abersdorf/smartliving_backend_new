@@ -15,6 +15,7 @@ import usersIndex from './routes/users/index';
 import collectionsIndex from './routes/collections/index';
 import collectionsId from './routes/collections/[id]';
 import pdfIndex from './routes/pdf/index';
+import webhooksIndex from './routes/webhooks/index';
 
 const fastify = Fastify({ logger: true });
 
@@ -39,6 +40,7 @@ async function main() {
   fastify.register(collectionsIndex, { prefix: '/api/collections' });
   fastify.register(collectionsId, { prefix: '/api/collections' });
   fastify.register(pdfIndex, { prefix: '/api/pdf' });
+  fastify.register(webhooksIndex, { prefix: '/api/webhooks' });
 
   fastify.get('/', async () => { return { status: 'ok' } });
 
