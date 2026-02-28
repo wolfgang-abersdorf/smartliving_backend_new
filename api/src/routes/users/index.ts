@@ -5,6 +5,34 @@ import { pipeline } from 'stream/promises';
 import { createWriteStream } from 'fs';
 
 export default async function (fastify: FastifyInstance) {
+    // Get users list
+    fastify.get('/', {
+        preValidation: [fastify.authenticate]
+    }, async (request, reply) => {
+        const isAdmin = ['admin', 'ADMIN', 'SUPERADMIN'].includes(request.user.role || '');
+        if (!isAdmin) {
+            return reply.code(403).send({ error: 'Access denied' });
+        }
+
+        const users = await fastify.prisma.user.findMany({
+            orderBy: { id: 'asc' }
+        });
+
+        return users.map(user => ({
+            id: user.id,
+            email: user.email,
+            username: user.username,
+            name: user.name,
+            phone_number: user.phoneNumber,
+            company: user.company,
+            position: user.position,
+            client_mode: user.clientMode,
+            profile_photo_url: user.profilePhoto,
+            role: user.role,
+            createdAt: user.createdAt
+        }));
+    });
+
     // Update user profile
     fastify.put('/:id', {
         preValidation: [fastify.authenticate],
