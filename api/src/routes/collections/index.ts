@@ -92,4 +92,89 @@ export default async function (fastify: FastifyInstance) {
             }
         };
     });
+    // Get single collection
+    fastify.get('/:id', {
+        preValidation: [fastify.authenticate]
+    }, async (request, reply) => {
+        const { id } = request.params as any;
+        const collection = await fastify.prisma.collection.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                collectionBuildings: {
+                    include: { building: true }
+                }
+            }
+        });
+
+        if (!collection) return reply.code(404).send({ error: 'Collection not found' });
+
+        return {
+            id: collection.id,
+            title: { rendered: collection.title },
+            objects: collection.objects,
+            acf: {
+                objects: collection.objects,
+                buildings_ids: collection.collectionBuildings.map(cb => cb.buildingId)
+            }
+        };
+    });
+
+    // Update collection
+    fastify.put('/:id', {
+        preValidation: [fastify.authenticate],
+        schema: {
+            body: {
+                type: 'object',
+                properties: {
+                    title: { type: 'string' },
+                    objects: { type: 'string' },
+                    buildings_ids: { type: 'array', items: { type: 'integer' } }
+                }
+            }
+        }
+    }, async (request, reply) => {
+        const { id } = request.params as any;
+        const { title, objects, buildings_ids } = request.body as any;
+
+        // Check ownership or admin
+        const collection = await fastify.prisma.collection.findUnique({ where: { id: parseInt(id) } });
+        if (!collection) return reply.code(404).send({ error: 'Collection not found' });
+
+        const isAdmin = ['admin', 'ADMIN', 'SUPERADMIN'].includes(request.user.role || '');
+        if (collection.authorId !== request.user.id && !isAdmin) {
+            return reply.code(403).send({ error: 'Forbidden' });
+        }
+
+        // Update basic info and building links
+        const updated = await fastify.prisma.collection.update({
+            where: { id: parseInt(id) },
+            data: {
+                title,
+                objects,
+                collectionBuildings: {
+                    deleteMany: {},
+                    create: (buildings_ids || []).map((id: number) => ({ buildingId: id }))
+                }
+            }
+        });
+
+        return updated;
+    });
+
+    // Delete collection
+    fastify.delete('/:id', {
+        preValidation: [fastify.authenticate]
+    }, async (request, reply) => {
+        const { id } = request.params as any;
+        const collection = await fastify.prisma.collection.findUnique({ where: { id: parseInt(id) } });
+        if (!collection) return reply.code(404).send({ error: 'Collection not found' });
+
+        const isAdmin = ['admin', 'ADMIN', 'SUPERADMIN'].includes(request.user.role || '');
+        if (collection.authorId !== request.user.id && !isAdmin) {
+            return reply.code(403).send({ error: 'Forbidden' });
+        }
+
+        await fastify.prisma.collection.delete({ where: { id: parseInt(id) } });
+        return { success: true };
+    });
 }

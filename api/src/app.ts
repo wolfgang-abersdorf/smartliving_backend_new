@@ -13,7 +13,6 @@ import authLogin from './routes/auth/login';
 import authMe from './routes/auth/me';
 import usersIndex from './routes/users/index';
 import collectionsIndex from './routes/collections/index';
-import collectionsId from './routes/collections/[id]';
 import pdfIndex from './routes/pdf/index';
 import webhooksIndex from './routes/webhooks/index';
 
@@ -38,7 +37,6 @@ async function main() {
   fastify.register(authMe, { prefix: '/api/auth' });
   fastify.register(usersIndex, { prefix: '/api/users' });
   fastify.register(collectionsIndex, { prefix: '/api/collections' });
-  fastify.register(collectionsId, { prefix: '/api/collections' });
   fastify.register(pdfIndex, { prefix: '/api/pdf' });
   fastify.register(webhooksIndex, { prefix: '/api/webhooks' });
 
