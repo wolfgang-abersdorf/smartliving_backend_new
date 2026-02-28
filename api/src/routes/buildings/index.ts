@@ -157,6 +157,8 @@ export default async function (fastify: FastifyInstance) {
                 mainImageUrl: data.mainImageUrl,
                 stampImageUrl: data.stampImageUrl,
                 stampPosition: data.stampPosition,
+                lat: data.lat,
+                lng: data.lng,
                 blocks: {
                     create: (data.blocks || []).map((b: any, index: number) => ({
                         blockUid: `b-${nextId}-${index}-${Date.now()}`,
@@ -208,6 +210,8 @@ export default async function (fastify: FastifyInstance) {
                     mainImageUrl: data.mainImageUrl,
                     stampImageUrl: data.stampImageUrl,
                     stampPosition: data.stampPosition,
+                    lat: data.lat,
+                    lng: data.lng,
                     blocks: {
                         create: (data.blocks || []).map((b: any, index: number) => ({
                             blockUid: `b-${buildingId}-${index}-${Date.now()}`,
