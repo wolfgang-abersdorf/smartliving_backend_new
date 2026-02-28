@@ -39,6 +39,8 @@ export function transformBuildingToWpFormat(building: BuildingWithRelations) {
             documents: building.documents,
             album: building.albums,
             map: building.mapData,
+            stamp_image: building.stampImageUrl,
+            stamp_position: building.stampPosition,
             block: building.blocks.map(block => ({
                 block_id: block.blockUid,
                 title: block.title,

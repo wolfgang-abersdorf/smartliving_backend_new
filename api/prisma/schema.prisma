@@ -59,6 +59,9 @@ model Building {
   roadType         String?  @map("road_type")
   territory        String?
   
+  stampImageUrl    String?  @map("stamp_image_url")
+  stampPosition    String?  @default("top-right") @map("stamp_position")
+  
   advantages       String[]
   contacts         Json?    @default("[]")
   albums           Json?    @default("[]")

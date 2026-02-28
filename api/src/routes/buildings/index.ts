@@ -99,4 +99,156 @@ export default async function (fastify: FastifyInstance) {
         await fastify.redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
         return result;
     });
+
+    // GET /api/buildings/:id
+    fastify.get('/:id', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const buildingId = parseInt(id);
+        const cacheKey = `building:${buildingId}`;
+
+        const cached = await fastify.redis.get(cacheKey);
+        if (cached) return JSON.parse(cached);
+
+        const building = await fastify.prisma.building.findUnique({
+            where: { id: buildingId },
+            include: {
+                blocks: {
+                    include: { units: true },
+                },
+            },
+        });
+
+        if (!building) {
+            return reply.code(404).send({ error: 'Building not found' });
+        }
+
+        const result = transformBuildingToWpFormat(building as any);
+        await fastify.redis.set(cacheKey, JSON.stringify(result), 'EX', 300);
+        return result;
+    });
+
+    // POST /api/buildings
+    fastify.post('/', async (request, reply) => {
+        const data = request.body as any;
+        const slug = data.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+        // Generate a numeric ID (since schema uses @id on Int without autoincrement in some places?)
+        // Wait, schema says: model Building { id Int @id } - NO autoincrement!
+        // I should probably find the max ID and increment it, or update schema to autoincrement.
+        // Let's check schema again.
+        const maxId = await fastify.prisma.building.findFirst({
+            orderBy: { id: 'desc' },
+            select: { id: true }
+        });
+        const nextId = (maxId?.id || 10000) + 1;
+
+        const building = await fastify.prisma.building.create({
+            data: {
+                id: nextId,
+                title: data.title,
+                slug: slug,
+                description: data.description,
+                area: data.area,
+                address: data.address,
+                status: data.status,
+                buildingClass: data.buildingClass,
+                developer: data.developer,
+                whatsapp: data.whatsapp,
+                mainImageUrl: data.mainImageUrl,
+                stampImageUrl: data.stampImageUrl,
+                stampPosition: data.stampPosition,
+                blocks: {
+                    create: (data.blocks || []).map((b: any, index: number) => ({
+                        blockUid: `b-${nextId}-${index}-${Date.now()}`,
+                        title: b.title,
+                        category: b.category,
+                        completionYear: b.completionYear,
+                        units: {
+                            create: (b.units || []).map((u: any) => ({
+                                numberTitle: u.numberTitle,
+                                areaM2: u.areaM2,
+                                price: u.price,
+                                status: u.status,
+                                rooms: u.rooms
+                            }))
+                        }
+                    }))
+                }
+            }
+        });
+
+        // Clear cache
+        await fastify.redis.del('buildings:*');
+        return building;
+    });
+
+    // PUT /api/buildings/:id
+    fastify.put('/:id', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const buildingId = parseInt(id);
+        const data = request.body as any;
+
+        // Start transaction for update
+        const result = await fastify.prisma.$transaction(async (tx) => {
+            // 1. Delete existing blocks and units (cascade)
+            await tx.block.deleteMany({ where: { buildingId } });
+
+            // 2. Update building and re-create blocks
+            return await tx.building.update({
+                where: { id: buildingId },
+                data: {
+                    title: data.title,
+                    description: data.description,
+                    area: data.area,
+                    address: data.address,
+                    status: data.status,
+                    buildingClass: data.buildingClass,
+                    developer: data.developer,
+                    whatsapp: data.whatsapp,
+                    mainImageUrl: data.mainImageUrl,
+                    stampImageUrl: data.stampImageUrl,
+                    stampPosition: data.stampPosition,
+                    blocks: {
+                        create: (data.blocks || []).map((b: any, index: number) => ({
+                            blockUid: `b-${buildingId}-${index}-${Date.now()}`,
+                            title: b.title,
+                            category: b.category,
+                            completionYear: b.completionYear,
+                            units: {
+                                create: (b.units || []).map((u: any) => ({
+                                    numberTitle: u.numberTitle,
+                                    areaM2: u.areaM2,
+                                    price: u.price,
+                                    status: u.status,
+                                    rooms: u.rooms
+                                }))
+                            }
+                        }))
+                    }
+                }
+            });
+        });
+
+        // Clear cache
+        await fastify.redis.del(`building:${buildingId}`);
+        await fastify.redis.del('buildings:*');
+
+        return result;
+    });
+
+    // DELETE /api/buildings/:id
+    fastify.delete('/:id', async (request, reply) => {
+        const { id } = request.params as { id: string };
+        const buildingId = parseInt(id);
+
+        await fastify.prisma.building.delete({
+            where: { id: buildingId }
+        });
+
+        // Clear cache
+        await fastify.redis.del(`building:${buildingId}`);
+        await fastify.redis.del('buildings:*');
+
+        return { success: true };
+    });
 }

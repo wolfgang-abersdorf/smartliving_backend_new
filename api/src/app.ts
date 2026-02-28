@@ -8,7 +8,6 @@ import dbPlugin from './plugins/db';
 import redisPlugin from './plugins/redis';
 import authPlugin from './plugins/auth';
 import buildingsIndex from './routes/buildings/index';
-import buildingsId from './routes/buildings/[id]';
 import authLogin from './routes/auth/login';
 import authMe from './routes/auth/me';
 import usersIndex from './routes/users/index';
@@ -32,7 +31,6 @@ async function main() {
 
   // Register routes
   fastify.register(buildingsIndex, { prefix: '/api/buildings' });
-  fastify.register(buildingsId, { prefix: '/api/buildings' });
   fastify.register(authLogin, { prefix: '/api/auth' });
   fastify.register(authMe, { prefix: '/api/auth' });
   fastify.register(usersIndex, { prefix: '/api/users' });
