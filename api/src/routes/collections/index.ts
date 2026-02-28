@@ -2,15 +2,19 @@ import { FastifyInstance } from 'fastify';
 import { transformBuildingToWpFormat } from '../../services/buildings.service';
 
 export default async function (fastify: FastifyInstance) {
-    // Get all collections for the current user
+    // Get collections - admins get all, regular users get only theirs
     fastify.get('/', {
         preValidation: [fastify.authenticate]
     }, async (request, reply) => {
         const userId = request.user.id;
+        const isAdmin = ['admin', 'ADMIN', 'SUPERADMIN'].includes(request.user.role || '');
+
+        const where = isAdmin ? {} : { authorId: userId };
 
         const collections = await fastify.prisma.collection.findMany({
-            where: { authorId: userId },
+            where,
             include: {
+                author: { select: { name: true, email: true } },
                 collectionBuildings: {
                     include: {
                         building: {
@@ -29,6 +33,8 @@ export default async function (fastify: FastifyInstance) {
         return collections.map(c => ({
             id: c.id,
             title: { rendered: c.title },
+            authorName: (c as any).author?.name || (c as any).author?.email || 'Unknown',
+            createdAt: c.createdAt,
             acf: {
                 objects: c.objects,
                 buildings_ids: c.collectionBuildings.map(cb => transformBuildingToWpFormat(cb.building as any))
