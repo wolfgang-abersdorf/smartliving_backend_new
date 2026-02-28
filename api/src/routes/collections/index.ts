@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { transformBuildingToWpFormat } from '../../services/buildings.service';
 
 export default async function (fastify: FastifyInstance) {
-    // Get collections - admins get all, regular users get only theirs
+    // Get collections - lightweight list for admins and regular users
     fastify.get('/', {
         preValidation: [fastify.authenticate]
     }, async (request, reply) => {
@@ -13,18 +13,13 @@ export default async function (fastify: FastifyInstance) {
 
         const collections = await fastify.prisma.collection.findMany({
             where,
-            include: {
+            select: {
+                id: true,
+                title: true,
+                createdAt: true,
                 author: { select: { name: true, email: true } },
-                collectionBuildings: {
-                    include: {
-                        building: {
-                            include: {
-                                blocks: {
-                                    include: { units: true }
-                                }
-                            }
-                        }
-                    }
+                _count: {
+                    select: { collectionBuildings: true }
                 }
             },
             orderBy: { createdAt: 'desc' }
@@ -33,12 +28,9 @@ export default async function (fastify: FastifyInstance) {
         return collections.map(c => ({
             id: c.id,
             title: { rendered: c.title },
-            authorName: (c as any).author?.name || (c as any).author?.email || 'Unknown',
+            authorName: c.author?.name || c.author?.email || 'Unknown',
             createdAt: c.createdAt,
-            acf: {
-                objects: c.objects,
-                buildings_ids: c.collectionBuildings.map(cb => transformBuildingToWpFormat(cb.building as any))
-            }
+            buildingsCount: c._count.collectionBuildings
         }));
     });
 
