@@ -1,5 +1,72 @@
 import { FastifyInstance } from 'fastify';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+
+/**
+ * WordPress-compatible password verification.
+ *
+ * WordPress uses the following hash formats:
+ *
+ *   1. $wp$2y$... — WordPress 6.x (bcrypt of HMAC-SHA384, with $wp prefix)
+ *      Formula: bcrypt( base64( HMAC-SHA384( password, 'wp-sha384' ) ) )
+ *      Storage: $wp + $2y$COST$SALTHASH  (PHP uses $2y$, Node bcrypt uses $2b$)
+ *
+ *   2. $P$...     — Legacy phpass (MD5-based, WordPress < 6.x)
+ *      Handled via wordpress-hash-node, auto-migrated to bcrypt on next login.
+ *
+ *   3. $2y$ / $2b$ / $2a$ — Raw bcrypt (set manually or migrated by this app)
+ *      Standard bcrypt.compare()
+ */
+async function checkWordPressPassword(
+    password: string,
+    storedHash: string,
+): Promise<{ isMatch: boolean; newBcryptHash?: string }> {
+
+    // Case 1: WordPress 6.x — $wp$2y$... prefix
+    // WP computes: base64_encode(hash_hmac('sha384', $password, 'wp-sha384', true))
+    // then bcrypt-hashes the result. PHP stores $2y$ but Node requires $2b$.
+    if (storedHash.startsWith('$wp$')) {
+        // Derive the same intermediate value WordPress uses
+        const hmacBuf = crypto.createHmac('sha384', 'wp-sha384').update(password).digest();
+        const passwordToVerify = hmacBuf.toString('base64');
+
+        // Strip '$wp' prefix → '$2y$10$...' → replace $2y$ with $2b$ for Node.js bcrypt
+        const bcryptHash = storedHash.slice(3).replace(/^\$2y\$/, '$2b$');
+        try {
+            const isMatch = await bcrypt.compare(passwordToVerify, bcryptHash);
+            return { isMatch };
+        } catch {
+            return { isMatch: false };
+        }
+    }
+
+    // Case 2: Standard bcrypt (re-hashed by this app or set manually)
+    if (storedHash.startsWith('$2y$') || storedHash.startsWith('$2b$') || storedHash.startsWith('$2a$')) {
+        const bcryptHash = storedHash.replace(/^\$2y\$/, '$2b$');
+        try {
+            const isMatch = await bcrypt.compare(password, bcryptHash);
+            return { isMatch };
+        } catch {
+            return { isMatch: false };
+        }
+    }
+
+    // Case 3: Legacy phpass ($P$) — verify and migrate to bcrypt on success
+    if (storedHash.startsWith('$P$')) {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const wpHash = require('wordpress-hash-node');
+        const isMatch = wpHash.CheckPassword(password, storedHash);
+        if (isMatch) {
+            // Upgrade: store a new standard bcrypt hash for future logins
+            const newBcryptHash = await bcrypt.hash(password, 12);
+            return { isMatch: true, newBcryptHash };
+        }
+        return { isMatch: false };
+    }
+
+    // Unknown format — deny
+    return { isMatch: false };
+}
 
 export default async function (fastify: FastifyInstance) {
     fastify.post('/login', {
@@ -14,14 +81,14 @@ export default async function (fastify: FastifyInstance) {
             }
         }
     }, async (request, reply) => {
-        const { username, password } = request.body as any;
+        const { username, password } = request.body as { username: string; password: string };
 
+        // Look up user by email or username (WordPress login)
         const user = await fastify.prisma.user.findFirst({
             where: {
                 OR: [
                     { email: username },
                     { username: username },
-                    { name: username }
                 ]
             }
         });
@@ -30,32 +97,18 @@ export default async function (fastify: FastifyInstance) {
             return reply.code(401).send({ error: 'Invalid credentials' });
         }
 
-        // If it's a newer WordPress bcrypt hash, it starts with $wp$
-        let hashToCompare = user.passwordHash;
-        if (hashToCompare.startsWith('$wp$')) {
-            hashToCompare = hashToCompare.replace(/^\$wp\$/, '$');
-        }
+        const { isMatch, newBcryptHash } = await checkWordPressPassword(password, user.passwordHash);
 
-        // Checking if the hash matches using bcrypt first
-        let isMatch = await bcrypt.compare(password, hashToCompare).catch(() => false);
-
-        // If bcrypt fails and it looks like a WP hash, try wordpress-hash-node
-        if (!isMatch && user.passwordHash.startsWith('$P$')) {
-            const wpHash = require('wordpress-hash-node');
-            isMatch = wpHash.CheckPassword(password, user.passwordHash);
-
-            // Re-hash with bcrypt for future logins if it matched
-            if (isMatch) {
-                const newHash = await bcrypt.hash(password, 10);
-                await fastify.prisma.user.update({
-                    where: { id: user.id },
-                    data: { passwordHash: newHash }
-                });
-            }
-        }
-
-        if (!isMatch && user.passwordHash !== password) {
+        if (!isMatch) {
             return reply.code(401).send({ error: 'Invalid credentials' });
+        }
+
+        // Migrate old phpass hash to bcrypt if needed
+        if (newBcryptHash) {
+            await fastify.prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash: newBcryptHash }
+            });
         }
 
         const token = fastify.jwt.sign({
@@ -70,7 +123,12 @@ export default async function (fastify: FastifyInstance) {
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                username: user.username,
                 role: user.role || 'agent',
+                phone_number: user.phoneNumber,
+                company: user.company,
+                position: user.position,
+                client_mode: user.clientMode,
                 profile_photo_url: user.profilePhoto
             }
         };
