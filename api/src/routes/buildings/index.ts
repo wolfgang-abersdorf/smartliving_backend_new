@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyRequest } from 'fastify';
 import { transformBuildingToWpFormat } from '../../services/buildings.service';
 
 function getOrderBy(sort?: string) {
@@ -35,7 +35,25 @@ export default async function (fastify: FastifyInstance) {
         },
     }, async (request) => {
         const query = request.query as any;
-        const cacheKey = `buildings:${JSON.stringify(query)}`;
+
+        // Try to decode JWT to apply role-based filtering if it's an agent
+        let userId: number | undefined;
+        let isAgent = false;
+        try {
+            if (request.headers.authorization) {
+                const decoded = await request.jwtVerify() as any;
+                if (decoded && decoded.role !== 'admin' && decoded.role !== 'SUPERADMIN') {
+                    isAgent = true;
+                    userId = decoded.id;
+                }
+            }
+        } catch (e) {
+            console.error('JWT Decode Error in GET /buildings:', e);
+            // Ignore token errors, continue as public request
+        }
+
+        // Include user role/id in cache key to separate agent vs admin/public caches
+        const cacheKey = `buildings:${userId || 'public'}:${JSON.stringify(query)}`;
 
         // Redis cache
         const cached = await fastify.redis.get(cacheKey);
@@ -43,6 +61,10 @@ export default async function (fastify: FastifyInstance) {
 
         // Prisma query
         const where: any = {};
+        if (isAgent && userId) {
+            where.authorId = userId;
+        }
+
         const blockWhere: any = {};
         const unitWhere: any = { status: { not: 'Sold' } };
 
@@ -104,13 +126,31 @@ export default async function (fastify: FastifyInstance) {
     fastify.get('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
         const buildingId = parseInt(id);
-        const cacheKey = `building:${buildingId}`;
+
+        let userId: number | undefined;
+        let isAgent = false;
+        try {
+            if (request.headers.authorization) {
+                const decoded = await request.jwtVerify() as any;
+                if (decoded && decoded.role !== 'admin' && decoded.role !== 'SUPERADMIN') {
+                    isAgent = true;
+                    userId = decoded.id;
+                }
+            }
+        } catch (e) { }
+
+        const cacheKey = `building:${userId || 'public'}:${buildingId}`;
 
         const cached = await fastify.redis.get(cacheKey);
         if (cached) return JSON.parse(cached);
 
-        const building = await fastify.prisma.building.findUnique({
-            where: { id: buildingId },
+        const where: any = { id: buildingId };
+        if (isAgent && userId) {
+            where.authorId = userId;
+        }
+
+        const building = await fastify.prisma.building.findFirst({
+            where,
             include: {
                 blocks: {
                     include: { units: true },
@@ -128,7 +168,8 @@ export default async function (fastify: FastifyInstance) {
     });
 
     // POST /api/buildings
-    fastify.post('/', async (request, reply) => {
+    fastify.post('/', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        const user = (request as any).user;
         const data = request.body as any;
         const slug = data.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
@@ -147,6 +188,7 @@ export default async function (fastify: FastifyInstance) {
                 id: nextId,
                 title: data.title,
                 slug: slug,
+                authorId: user.id, // Set the author
                 description: data.description,
                 area: data.area,
                 address: data.address,
@@ -184,10 +226,20 @@ export default async function (fastify: FastifyInstance) {
     });
 
     // PUT /api/buildings/:id
-    fastify.put('/:id', async (request, reply) => {
+    fastify.put('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        const user = (request as any).user;
         const { id } = request.params as { id: string };
         const buildingId = parseInt(id);
         const data = request.body as any;
+
+        // Verify ownership for agents
+        const existingBuilding = await fastify.prisma.building.findUnique({ where: { id: buildingId } });
+        if (!existingBuilding) {
+            return reply.code(404).send({ error: 'Building not found' });
+        }
+        if (user.role !== 'admin' && user.role !== 'SUPERADMIN' && existingBuilding.authorId !== user.id) {
+            return reply.code(403).send({ error: 'Forbidden: You can only edit your own properties' });
+        }
 
         // Start transaction for update
         const result = await fastify.prisma.$transaction(async (tx) => {
@@ -232,23 +284,33 @@ export default async function (fastify: FastifyInstance) {
         });
 
         // Clear cache
-        await fastify.redis.del(`building:${buildingId}`);
+        await fastify.redis.del(`building:*:${buildingId}`);
         await fastify.redis.del('buildings:*');
 
         return result;
     });
 
     // DELETE /api/buildings/:id
-    fastify.delete('/:id', async (request, reply) => {
+    fastify.delete('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
+        const user = (request as any).user;
         const { id } = request.params as { id: string };
         const buildingId = parseInt(id);
+
+        // Verify ownership for agents
+        const existingBuilding = await fastify.prisma.building.findUnique({ where: { id: buildingId } });
+        if (!existingBuilding) {
+            return reply.code(404).send({ error: 'Building not found' });
+        }
+        if (user.role !== 'admin' && user.role !== 'SUPERADMIN' && existingBuilding.authorId !== user.id) {
+            return reply.code(403).send({ error: 'Forbidden: You can only delete your own properties' });
+        }
 
         await fastify.prisma.building.delete({
             where: { id: buildingId }
         });
 
         // Clear cache
-        await fastify.redis.del(`building:${buildingId}`);
+        await fastify.redis.del(`building:*:${buildingId}`);
         await fastify.redis.del('buildings:*');
 
         return { success: true };
