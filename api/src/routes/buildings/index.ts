@@ -219,6 +219,10 @@ export default async function (fastify: FastifyInstance) {
                         title: b.title,
                         category: b.category,
                         completionYear: b.completionYear,
+                        completionQuarter: b.completionQuarter,
+                        constructionStage: b.constructionStage,
+                        typeOfOwnership: b.typeOfOwnership,
+                        leaseholdYears: b.leaseholdYears,
                         units: {
                             create: (b.units || []).map((u: any) => ({
                                 numberTitle: u.numberTitle,
@@ -294,6 +298,10 @@ export default async function (fastify: FastifyInstance) {
                             title: b.title,
                             category: b.category,
                             completionYear: b.completionYear,
+                            completionQuarter: b.completionQuarter,
+                            constructionStage: b.constructionStage,
+                            typeOfOwnership: b.typeOfOwnership,
+                            leaseholdYears: b.leaseholdYears,
                             units: {
                                 create: (b.units || []).map((u: any) => ({
                                     numberTitle: u.numberTitle,
