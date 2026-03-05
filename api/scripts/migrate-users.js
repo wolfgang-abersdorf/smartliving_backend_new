@@ -35,6 +35,7 @@ async function run() {
         await prisma.user.create({
             data: {
                 id: u.ID, // Preserve IDs if possible so collection references match
+                username: u.user_login,
                 email: u.user_email || `${u.user_login}@migrated.local`,
                 name: name,
                 // In WP, passwords use phpass hash. Bcrypt is what we use in node. 

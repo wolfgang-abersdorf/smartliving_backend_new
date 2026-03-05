@@ -11,9 +11,10 @@ import buildingsIndex from './routes/buildings/index';
 import authLogin from './routes/auth/login';
 import authMe from './routes/auth/me';
 import usersIndex from './routes/users/index';
-import collectionsIndex from './routes/collections/index';
+import CollectionsIndex from './routes/collections/index';
 import pdfIndex from './routes/pdf/index';
 import webhooksIndex from './routes/webhooks/index';
+import activityIndex from './routes/activity/index';
 
 const fastify = Fastify({ logger: true });
 
@@ -34,9 +35,10 @@ async function main() {
   fastify.register(authLogin, { prefix: '/api/auth' });
   fastify.register(authMe, { prefix: '/api/auth' });
   fastify.register(usersIndex, { prefix: '/api/users' });
-  fastify.register(collectionsIndex, { prefix: '/api/collections' });
+  fastify.register(CollectionsIndex, { prefix: '/api/collections' });
   fastify.register(pdfIndex, { prefix: '/api/pdf' });
   fastify.register(webhooksIndex, { prefix: '/api/webhooks' });
+  fastify.register(activityIndex, { prefix: '/api/activity' });
 
   fastify.get('/', async () => { return { status: 'ok' } });
 

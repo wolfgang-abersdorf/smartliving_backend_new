@@ -73,8 +73,9 @@ async function run() {
         }
         const savedBuilding = await prisma.building.upsert({
             where: { slug: b.post_name },
-            update: {},
+            update: { id: b.ID },
             create: {
+                id: b.ID,
                 title: b.post_title,
                 slug: b.post_name,
                 address: meta['address'],
