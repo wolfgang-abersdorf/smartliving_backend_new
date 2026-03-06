@@ -214,6 +214,7 @@ export default async function (fastify: FastifyInstance) {
                 territory: data.territory,
                 advantages: data.advantages || [],
                 documents: data.documents || [],
+                contacts: data.contacts || [],
                 albums: data.albums || [],
                 blocks: {
                     create: (data.blocks || []).map((b: any, index: number) => ({
@@ -293,6 +294,7 @@ export default async function (fastify: FastifyInstance) {
                     territory: data.territory,
                     advantages: data.advantages || [],
                     documents: data.documents || [],
+                    contacts: data.contacts || [],
                     albums: data.albums || [],
                     blocks: {
                         create: (data.blocks || []).map((b: any, index: number) => ({
