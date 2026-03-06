@@ -15,6 +15,7 @@ import CollectionsIndex from './routes/collections/index';
 import pdfIndex from './routes/pdf/index';
 import webhooksIndex from './routes/webhooks/index';
 import activityIndex from './routes/activity/index';
+import aiChat from './routes/ai/chat';
 
 const fastify = Fastify({ logger: true });
 
@@ -39,6 +40,7 @@ async function main() {
   fastify.register(pdfIndex, { prefix: '/api/pdf' });
   fastify.register(webhooksIndex, { prefix: '/api/webhooks' });
   fastify.register(activityIndex, { prefix: '/api/activity' });
+  fastify.register(aiChat, { prefix: '/api/ai' });
 
   fastify.get('/', async () => { return { status: 'ok' } });
 

@@ -20,6 +20,7 @@ const index_3 = __importDefault(require("./routes/collections/index"));
 const index_4 = __importDefault(require("./routes/pdf/index"));
 const index_5 = __importDefault(require("./routes/webhooks/index"));
 const index_6 = __importDefault(require("./routes/activity/index"));
+const chat_1 = __importDefault(require("./routes/ai/chat"));
 const fastify = (0, fastify_1.default)({ logger: true });
 async function main() {
     await fastify.register(cors_1.default);
@@ -40,6 +41,7 @@ async function main() {
     fastify.register(index_4.default, { prefix: '/api/pdf' });
     fastify.register(index_5.default, { prefix: '/api/webhooks' });
     fastify.register(index_6.default, { prefix: '/api/activity' });
+    fastify.register(chat_1.default, { prefix: '/api/ai' });
     fastify.get('/', async () => { return { status: 'ok' }; });
     try {
         const port = parseInt(process.env.PORT || '4000');

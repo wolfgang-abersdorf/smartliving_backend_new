@@ -17,7 +17,7 @@ async function default_1(fastify) {
                 type: 'object',
                 properties: {
                     page: { type: 'integer', default: 1, minimum: 1 },
-                    per_page: { type: 'integer', default: 20, minimum: 1, maximum: 100 },
+                    per_page: { type: 'integer', default: 20, minimum: 1, maximum: 500 },
                     category: { type: 'string' },
                     area: { type: 'array', items: { type: 'string' } },
                     price_min: { type: 'number' },
@@ -30,6 +30,8 @@ async function default_1(fastify) {
                     has_view: { type: 'boolean' },
                     sort: { type: 'string', default: 'newest' },
                     search: { type: 'string' },
+                    context: { type: 'string' },
+                    author_id: { type: ['integer', 'string'] },
                 },
             },
         },
@@ -59,7 +61,10 @@ async function default_1(fastify) {
             return JSON.parse(cached);
         // Prisma query
         const where = {};
-        if (isAgent && userId) {
+        if (query.author_id) {
+            where.authorId = parseInt(query.author_id);
+        }
+        else if (isAgent && userId && query.context === 'edit') {
             where.authorId = userId;
         }
         const blockWhere = {};
@@ -141,9 +146,6 @@ async function default_1(fastify) {
         if (cached)
             return JSON.parse(cached);
         const where = { id: buildingId };
-        if (isAgent && userId) {
-            where.authorId = userId;
-        }
         const building = await fastify.prisma.building.findFirst({
             where,
             include: {
