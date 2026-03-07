@@ -232,7 +232,12 @@ export default async function (fastify: FastifyInstance) {
                                 areaM2: u.areaM2,
                                 price: u.price,
                                 status: u.status,
-                                rooms: u.rooms
+                                rooms: u.rooms,
+                                currency: u.currency || 'USD',
+                                views: u.views || [],
+                                floor: u.floor,
+                                propertyType: u.propertyType || '',
+                                photos: u.photos || []
                             }))
                         }
                     }))
@@ -312,7 +317,12 @@ export default async function (fastify: FastifyInstance) {
                                     areaM2: u.areaM2,
                                     price: u.price,
                                     status: u.status,
-                                    rooms: u.rooms
+                                    rooms: u.rooms,
+                                    currency: u.currency || 'USD',
+                                    views: u.views || [],
+                                    floor: u.floor,
+                                    propertyType: u.propertyType || '',
+                                    photos: u.photos || []
                                 }))
                             }
                         }))
