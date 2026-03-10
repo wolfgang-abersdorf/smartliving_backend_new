@@ -190,6 +190,7 @@ export default async function (fastify: FastifyInstance) {
                 id: nextId,
                 title: data.title,
                 slug: slug,
+                status: data.status || 'PUBLISHED',
                 authorId: user.id, // Set the author
                 description: data.description,
                 area: data.area,
@@ -257,6 +258,7 @@ export default async function (fastify: FastifyInstance) {
         const { id } = request.params as { id: string };
         const buildingId = parseInt(id);
         const data = request.body as any;
+        const slug = data.title ? data.title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '') : undefined;
 
         // Verify ownership for agents
         const existingBuilding = await fastify.prisma.building.findUnique({ where: { id: buildingId } });
@@ -273,10 +275,12 @@ export default async function (fastify: FastifyInstance) {
             await tx.block.deleteMany({ where: { buildingId } });
 
             // 2. Update building and re-create blocks
-            return await tx.building.update({
+            const updatedBuilding = await tx.building.update({
                 where: { id: buildingId },
                 data: {
                     title: data.title,
+                    slug: slug,
+                    status: data.status,
                     description: data.description,
                     area: data.area,
                     address: data.address,
