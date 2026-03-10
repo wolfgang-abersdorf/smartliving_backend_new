@@ -219,25 +219,25 @@ export default async function (fastify: FastifyInstance) {
                 blocks: {
                     create: (data.blocks || []).map((b: any, index: number) => ({
                         blockUid: `b-${nextId}-${index}-${Date.now()}`,
-                        title: b.title,
-                        category: b.category,
-                        completionYear: b.completionYear,
-                        completionQuarter: b.completionQuarter,
-                        constructionStage: b.constructionStage,
-                        typeOfOwnership: b.typeOfOwnership,
-                        leaseholdYears: b.leaseholdYears,
+                        title: b.title?.toString() || null,
+                        category: b.category?.toString() || '',
+                        completionYear: typeof b.completionYear === 'number' ? b.completionYear : (parseInt(b.completionYear) || null),
+                        completionQuarter: b.completionQuarter?.toString() || null,
+                        constructionStage: b.constructionStage?.toString() || null,
+                        typeOfOwnership: b.typeOfOwnership?.toString() || null,
+                        leaseholdYears: b.leaseholdYears?.toString() || null,
                         units: {
                             create: (b.units || []).map((u: any) => ({
-                                numberTitle: u.numberTitle,
-                                areaM2: u.areaM2,
-                                price: u.price,
-                                status: u.status,
-                                rooms: u.rooms,
-                                currency: u.currency || 'USD',
-                                views: u.views || [],
-                                floor: u.floor,
-                                propertyType: u.propertyType || '',
-                                photos: u.photos || []
+                                numberTitle: u.numberTitle?.toString() || null,
+                                areaM2: u.areaM2 ? Number(u.areaM2) : null,
+                                price: u.price ? Number(u.price) : null,
+                                status: u.status?.toString() || null,
+                                rooms: typeof u.rooms === 'number' ? u.rooms : (parseInt(u.rooms) || null),
+                                currency: u.currency?.toString() || 'USD',
+                                views: Array.isArray(u.views) ? u.views.map(String) : [],
+                                floor: typeof u.floor === 'number' ? u.floor : (parseInt(u.floor) || null),
+                                propertyType: u.propertyType?.toString() || '',
+                                photos: Array.isArray(u.photos) ? u.photos.map(String) : []
                             }))
                         }
                     }))
@@ -246,7 +246,8 @@ export default async function (fastify: FastifyInstance) {
         });
 
         // Clear cache
-        await fastify.redis.del('buildings:*');
+        const keys = await fastify.redis.keys('buildings:*');
+        if (keys.length > 0) await fastify.redis.del(keys);
         return building;
     });
 
@@ -304,25 +305,25 @@ export default async function (fastify: FastifyInstance) {
                     blocks: {
                         create: (data.blocks || []).map((b: any, index: number) => ({
                             blockUid: `b-${buildingId}-${index}-${Date.now()}`,
-                            title: b.title,
-                            category: b.category,
-                            completionYear: b.completionYear,
-                            completionQuarter: b.completionQuarter,
-                            constructionStage: b.constructionStage,
-                            typeOfOwnership: b.typeOfOwnership,
-                            leaseholdYears: b.leaseholdYears,
+                            title: b.title?.toString() || null,
+                            category: b.category?.toString() || '',
+                            completionYear: typeof b.completionYear === 'number' ? b.completionYear : (parseInt(b.completionYear) || null),
+                            completionQuarter: b.completionQuarter?.toString() || null,
+                            constructionStage: b.constructionStage?.toString() || null,
+                            typeOfOwnership: b.typeOfOwnership?.toString() || null,
+                            leaseholdYears: b.leaseholdYears?.toString() || null,
                             units: {
                                 create: (b.units || []).map((u: any) => ({
-                                    numberTitle: u.numberTitle,
-                                    areaM2: u.areaM2,
-                                    price: u.price,
-                                    status: u.status,
-                                    rooms: u.rooms,
-                                    currency: u.currency || 'USD',
-                                    views: u.views || [],
-                                    floor: u.floor,
-                                    propertyType: u.propertyType || '',
-                                    photos: u.photos || []
+                                    numberTitle: u.numberTitle?.toString() || null,
+                                    areaM2: u.areaM2 ? Number(u.areaM2) : null,
+                                    price: u.price ? Number(u.price) : null,
+                                    status: u.status?.toString() || null,
+                                    rooms: typeof u.rooms === 'number' ? u.rooms : (parseInt(u.rooms) || null),
+                                    currency: u.currency?.toString() || 'USD',
+                                    views: Array.isArray(u.views) ? u.views.map(String) : [],
+                                    floor: typeof u.floor === 'number' ? u.floor : (parseInt(u.floor) || null),
+                                    propertyType: u.propertyType?.toString() || '',
+                                    photos: Array.isArray(u.photos) ? u.photos.map(String) : []
                                 }))
                             }
                         }))
@@ -332,8 +333,10 @@ export default async function (fastify: FastifyInstance) {
         });
 
         // Clear cache
-        await fastify.redis.del(`building:*:${buildingId}`);
-        await fastify.redis.del('buildings:*');
+        const keys1 = await fastify.redis.keys(`building:*:${buildingId}`);
+        if (keys1.length > 0) await fastify.redis.del(keys1);
+        const keys2 = await fastify.redis.keys('buildings:*');
+        if (keys2.length > 0) await fastify.redis.del(keys2);
 
         return result;
     });
@@ -358,8 +361,10 @@ export default async function (fastify: FastifyInstance) {
         });
 
         // Clear cache
-        await fastify.redis.del(`building:*:${buildingId}`);
-        await fastify.redis.del('buildings:*');
+        const keys1 = await fastify.redis.keys(`building:*:${buildingId}`);
+        if (keys1.length > 0) await fastify.redis.del(keys1);
+        const keys2 = await fastify.redis.keys('buildings:*');
+        if (keys2.length > 0) await fastify.redis.del(keys2);
 
         return { success: true };
     });

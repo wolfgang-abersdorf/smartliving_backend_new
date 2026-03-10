@@ -20,7 +20,11 @@ import aiChat from './routes/ai/chat';
 const fastify = Fastify({ logger: true });
 
 async function main() {
-  await fastify.register(cors);
+  await fastify.register(cors, {
+    origin: '*',
+    methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
   await fastify.register(fastifyMultipart, { limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB limit
   await fastify.register(fastifyStatic, {
     root: path.join(__dirname, '../../public'),

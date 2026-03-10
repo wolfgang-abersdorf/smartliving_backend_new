@@ -72,6 +72,8 @@ export function transformBuildingToWpFormat(building: BuildingWithRelations) {
         coordinates: building.lat && building.lng
             ? [{ lat: building.lat, lng: building.lng }]
             : [],
+        lat: building.lat ? Number(building.lat) : 0,
+        lng: building.lng ? Number(building.lng) : 0,
         main_image_thumbnail: {
             thumbnail: building.mainImageThumb || building.mainImageUrl,
             card: building.mainImageCard || building.mainImageUrl,
