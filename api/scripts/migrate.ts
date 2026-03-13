@@ -126,7 +126,10 @@ async function run() {
                     title: blockTitle,
                     category: blockCategory,
                     typeOfOwnership: ownership,
-                    leaseholdYears: leasehold
+                    leaseholdYears: leasehold,
+                    completionYear: meta[`block_${i}_completion_year`] ? parseInt(meta[`block_${i}_completion_year`]) : null,
+                    completionQuarter: meta[`block_${i}_completion_quarter`] || null,
+                    constructionStage: meta[`block_${i}_construction_stage`] || null
                 }
             });
 
