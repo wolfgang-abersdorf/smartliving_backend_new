@@ -145,9 +145,12 @@ async function run() {
                         currency: meta[`${prefix}_currency`] || 'USD',
                         status: meta[`${prefix}_status`] || 'Sale',
                         rooms: meta[`${prefix}_number_of_rooms`] ? parseInt(meta[`${prefix}_number_of_rooms`]) : null,
-                        floor: meta[`${prefix}_amount_of_floors`] ? parseInt(meta[`${prefix}_amount_of_floors`]) : null,
+                        floor: meta[`${prefix}_floor`] ? parseInt(meta[`${prefix}_floor`]) : null,
+                        floorsTotal: meta[`${prefix}_amount_of_floors`] ? parseInt(meta[`${prefix}_amount_of_floors`]) : null,
                         landArea: meta[`${prefix}_land_area`] ? parseFloat(meta[`${prefix}_land_area`]) : null,
-                        views: parseSerialized(meta[`${prefix}_having_a_view`])
+                        apartmentTypes: parseSerialized(meta[`${prefix}_type_of_apartment`]),
+                        views: parseSerialized(meta[`${prefix}_having_a_view`]),
+                        photos: parseSerialized(meta[`${prefix}_photo`]),
                     } as any
                 });
             }
