@@ -1,10 +1,36 @@
 import { FastifyInstance } from 'fastify';
 
+function toNumber(value: any): number | null {
+    const parsed = Number(String(value ?? '').replace(',', '.').trim());
+    return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseLocationCoordinates(location: any): { lat?: number; lng?: number } {
+    if (!location) return {};
+
+    const directLat = toNumber(location?.lat);
+    const directLng = toNumber(location?.lng);
+    if (directLat !== null && directLng !== null) {
+        return { lat: directLat, lng: directLng };
+    }
+
+    if (Array.isArray(location?.markers) && location.markers[0]) {
+        const markerLat = toNumber(location.markers[0]?.lat);
+        const markerLng = toNumber(location.markers[0]?.lng);
+        if (markerLat !== null && markerLng !== null) {
+            return { lat: markerLat, lng: markerLng };
+        }
+    }
+
+    return {};
+}
+
 /**
  * Parses and maps ACF array format directly from the WordPress REST API into Prisma compatible fields.
  */
 function mapAcfToPrisma(acf: any): any {
     if (!acf) return {};
+    const locationCoordinates = parseLocationCoordinates(acf.location);
 
     return {
         address: acf.address || '',
@@ -29,6 +55,8 @@ function mapAcfToPrisma(acf: any): any {
         documents: Array.isArray(acf.documents) ? acf.documents : [],
         albums: Array.isArray(acf.album) ? acf.album : [],
         mapData: acf.map || null,
+        lat: locationCoordinates.lat,
+        lng: locationCoordinates.lng,
     };
 }
 

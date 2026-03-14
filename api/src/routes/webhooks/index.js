@@ -1,12 +1,34 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = default_1;
+function toNumber(value) {
+    const parsed = Number(String(value ?? '').replace(',', '.').trim());
+    return Number.isFinite(parsed) ? parsed : null;
+}
+function parseLocationCoordinates(location) {
+    if (!location)
+        return {};
+    const directLat = toNumber(location?.lat);
+    const directLng = toNumber(location?.lng);
+    if (directLat !== null && directLng !== null) {
+        return { lat: directLat, lng: directLng };
+    }
+    if (Array.isArray(location?.markers) && location.markers[0]) {
+        const markerLat = toNumber(location.markers[0]?.lat);
+        const markerLng = toNumber(location.markers[0]?.lng);
+        if (markerLat !== null && markerLng !== null) {
+            return { lat: markerLat, lng: markerLng };
+        }
+    }
+    return {};
+}
 /**
  * Parses and maps ACF array format directly from the WordPress REST API into Prisma compatible fields.
  */
 function mapAcfToPrisma(acf) {
     if (!acf)
         return {};
+    const locationCoordinates = parseLocationCoordinates(acf.location);
     return {
         address: acf.address || '',
         area: acf.area || '',
@@ -30,6 +52,8 @@ function mapAcfToPrisma(acf) {
         documents: Array.isArray(acf.documents) ? acf.documents : [],
         albums: Array.isArray(acf.album) ? acf.album : [],
         mapData: acf.map || null,
+        lat: locationCoordinates.lat,
+        lng: locationCoordinates.lng,
     };
 }
 async function default_1(fastify) {
