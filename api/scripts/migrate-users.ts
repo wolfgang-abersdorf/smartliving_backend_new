@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 async function run() {
     console.log('Starting Users Migration...');
-    const wp = await mysql.createConnection('mysql://wordpress:wordpress@127.0.0.1:3376/wp-app');
+    const wp = await mysql.createConnection(process.env.WP_DB_URL || 'mysql://wordpress:wordpress@127.0.0.1:3376/wp-app');
     console.log('Connected to WP MySQL');
 
     // We don't delete existing users because we might want to keep the current test users that may have been created

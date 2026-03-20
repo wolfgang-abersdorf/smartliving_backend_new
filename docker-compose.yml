@@ -23,6 +23,22 @@ services:
     networks:
       - sl_network
 
+  wp-mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wp-app
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    ports:
+      - "3376:3306"
+    volumes:
+      - ./dumps:/docker-entrypoint-initdb.d
+      - wp_mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    networks:
+      - sl_network
+
   api:
     build: ./api
     environment:
@@ -42,6 +58,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+  wp_mysql_data:
 
 networks:
   sl_network:

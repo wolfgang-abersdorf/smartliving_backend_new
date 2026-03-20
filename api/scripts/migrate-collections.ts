@@ -20,7 +20,7 @@ function parseSerialized(val?: string) {
 }
 
 async function run() {
-    const wp = await mysql.createConnection('mysql://wordpress:wordpress@127.0.0.1:3376/wp-app');
+    const wp = await mysql.createConnection(process.env.WP_DB_URL || 'mysql://wordpress:wordpress@127.0.0.1:3376/wp-app');
     console.log('Connected to WP MySQL');
 
     await prisma.collectionBuilding.deleteMany({});
